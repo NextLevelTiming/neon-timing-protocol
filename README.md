@@ -1,32 +1,37 @@
-# Neon Timing Protocol (v1)
+# Neon Timing Protocol
+
+> This protocol is currently under development. We are looking for feedback.
+> Breaking changes to this protocol may still occur causing your clients to no longer be compatible.
+
 The purpose of this protocol is to enable **real time** communication of race data between multiple participating clients.
-Participating clients can be a range of devices, for example: timing decoders, scoring displays, and lights.
+Participating clients can be a range of devices, such as: timing decoders, scoring displays, lights, and race software.
 
-The primary host client may support one or many connected clients in various configurations.
-
-Messages may or may not occur directly between a client and the primary host client.
-
-Supporting clients may enable enhanced broadcasting and connectivity features. The may include enabling compatibility
+Supporting clients may enable enhanced broadcasting and connectivity features. This may include enabling compatibility
 for hardware that is not compatible with the Neon Timing Protocol.
+
+Clients **may** support one or more connected clients. If more than one connected client is supported, the host **must**
+rebroadcast events received.
 
 - [Todo](#todo)
 - [Communication Protocols](#communication-protocols)
 - [Messages](#messages)
 - [Protocol Commands](#protocol-commands)
-- [Events](#events)
+  - [Handshake](#handshake)
+  - [Events](#events)
 
 
 ---
 
 
 # Todo
-There are a few things left to finish before we recommend using the Neon Timing Protocol for general use. Breaking
-changes to this protocol may still occur causing your clients to no longer function.
 
-- [ ] Finalize first protocol
+> There are a few things left to finish before we recommend using the Neon Timing Protocol for use.
+
+- [ ] Get feedback from community
 - [ ] Support satellite -> hub -> race computer communication
-  - The current issue is that things like `handshake_ack` won't make it back to the originating device
+    - The current issue is that things like `handshake_ack` won't make it back to the originating device
 - [ ] Consider converting "race time over" event type back to "race last lap"
+- [ ] Finalize handshake and event commands
 - [ ] Finish documentation
 
 
@@ -38,10 +43,10 @@ changes to this protocol may still occur causing your clients to no longer funct
 
 ## Serial
 - Port Settings
-  - Baud Rate: 115200
-  - Data Bits: 8
-  - Parity: None
-  - Stop Bits: 1
+    - Baud Rate: 115200
+    - Data Bits: 8
+    - Parity: None
+    - Stop Bits: 1
 - Message Delimiter: Each message must be followed by a newline `\n` character.
 - Authentication: When connected over serial authentication is granted automatically.
 
@@ -112,8 +117,8 @@ The suggested pattern for syncing clocks is
 - Verify the `init_time` matches the previously recorded `local_init_time`
 - Get the `time` from the `handshake_ack` response and record it as `remote_ack_time`
 - Process time sensitive messages by converting message time to local time
-  - local_init_time + incoming_message.time - remote_ack_time
-  - Additionally compensate for latency if required.
+    - local_init_time + incoming_message.time - remote_ack_time
+    - Additionally compensate for latency if required.
 
 The Neon Timing Protocol assumes that clients do not update their clock at any point during the connection. You can at any
 point initiate a handshake to synchronize time. I suggest synchronizing time during the initial handshake and
@@ -149,18 +154,15 @@ The `handshake_ack` command **must** only be used in response to a `handshake_in
 
 - `device` [string]: Device name or description.
 - `init_time` [integer]: The `time` from the `handshake_init` command being responded to.
-  - Used by the sender to validate which `handshake_init` is being responded to.
-  - Used by the sender to synchronize the clocks.
+    - Used by the sender to validate which `handshake_init` is being responded to.
+    - Used by the sender to synchronize the clocks.
 
 ```json
 {"type":"handshake_ack","init_time":1652239294011,"device":"Hub","protocol":"NT1","time":6066,"did":"DEMO-1234567890A"}
 ```
 
 
----
-
-
-# Events
+## Events
 Clients **should** not send events to clients that do not support the event types. However, the receiving client
 **must** gracefully ignore event types it cannot support.
 
