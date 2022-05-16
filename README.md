@@ -28,10 +28,15 @@ rebroadcast events received.
 > There are a few things left to finish before we recommend using the Neon Timing Protocol for use.
 
 - [ ] Get feedback from community
+- [ ] Communication protocol examples
+  - [ ] Serial
+  - [ ] Socket.io
 - [ ] Support satellite -> hub -> race computer communication
     - The current issue is that things like `handshake_ack` won't make it back to the originating device
 - [ ] Consider converting "race time over" event type back to "race last lap"
 - [ ] Finalize handshake and event commands
+- [ ] Ensure the 200 character message limit is possible with the defined protocol. Increase as needed.
+- [ ] Host vs client? Is there P2P communication or is it all client to host?
 - [ ] Finish documentation
 
 
@@ -39,9 +44,21 @@ rebroadcast events received.
 
 
 # Communication Protocols
+The Neon Timing Protocol is primarily a message protocol. Communication protocols are used to deliver messages between
+clients. A client **may** support more than one communication protocols.
 
+It is recommended that clients follow the communication protocol guidelines. This is not strictly necessarry.
+
+Newer, faster, easier communication protocols are being developed every day. We may adopt and make recommendations for
+implementation of these communication protocols. Ideally the messages being sent between clients will remain unchanged.
 
 ## Serial
+Serial is a very common protocol used when developing hardware. It is easy to implment and most computers are capable
+of sending and receiving it through the use of USB COM ports. It also has low latency as there is generally a wire
+between the two clients.
+
+
+- Example client: TODO
 - Port Settings
     - Baud Rate: 115200
     - Data Bits: 8
@@ -50,26 +67,37 @@ rebroadcast events received.
 - Message Delimiter: Each message must be followed by a newline `\n` character.
 - Authentication: When connected over serial authentication is granted automatically.
 
-## Work in progress: Socket.io
+## WebSocket: Socket.io
+[Socket.io](https://socket.io/) is a less common protocol. It sits on top of a more common WebSocket protocol but has a
+few extra ease of use features. WebSockets are incredibly powerful. They can be used to communicate over a network,
+including the internet. Latency is very dependent on the network connectivity. The Neon Timing Protocol attempts to
+reduce timing errors induced by latency.
+
+- Example client: TODO
 - Transport: Websocket only. No upgrades.
 - Namespace: neon-timing
-- Todo: Auth
-- Todo: Why socket.io
-- Todo: Emitting events
-- Todo: Receiving events
+- Authentication:
+  - A `token` query string parameter can be sent when connecting for authentication
+  - /neon-timing?token=abc-123
+- Emitting events: socket.emit('client_event', message);
+- Receiving events: socket.on('host_event', message => {});
 
 
 ---
 
 
 # Messages
-Messages must be in JSON format.
+Messages must be in [JSON](https://www.json.org/) format. This increases readablity and defines concrete structure for the messages.
 
-Messages between clients are done through a set of commands. Some of these commands have additional arguments.
+Messages between clients are done through a set of commands. Some of these commands may have additional properties.
 
 Invalid messages should not cause failure of the connection unless it is a matter of security or stability of the client.
 
-Messages should be as compact as possible. The message character limit is 200 characters.
+Messages should be as compact as possible. The message character limit is 200 characters. Limiting message length
+ensures performance is maintained and allows for low compute clients.
+
+The trade-offs made for processing JSON were not made lightly. We feel there are enough low powered devices that are
+capable of handling this format.
 
 
 ## Message Format
@@ -77,7 +105,7 @@ Each message **must** include the following set of properties to be considered v
 
 Commands **may** have additional properties.
 
-- `cmd` [string]: A command from the Neon Timing Protocol.
+- `cmd` [string]: A command defined in the Neon Timing Protocol.
 - `protocol` [string]: For this version of the Neon Timing Protocol this value is **NT1**.
 - `time` [integer]: Device time (in milliseconds) when the message was sent.
 - `did` [string]: A unique device identifier. This should not change between connections. Max 16 characters.
@@ -98,7 +126,7 @@ The handshake commands serve two purposes:
 
 
 ### Initial Connection
-The `handshake_init` command **must** be sent on initial connection by both clients.
+The `handshake_init` command **must** be sent on initial connection by the hosting client and **may** be sent by the client.
 After receiving the `handshake_init` the client **should** respond with `handshake_ack` within one-second or be subject
 to connection termination.
 
@@ -125,7 +153,7 @@ point initiate a handshake to synchronize time. I suggest synchronizing time dur
 at the start of each race.
 
 
-### Events Argument
+### Events Property
 `handshake_init` and `handshake_ack` **must** contain array of `events` supported by the client.
 
 - *: Support for receiving all event types.
