@@ -116,6 +116,33 @@ Commands **may** have additional properties.
 
 
 # Protocol Commands
+Commands are messages that cause the receiving client to execute actions.
+
+Commands can also convey that an event happened. Events are not expected to ellicit any particular response from clients.
+
+Most commands are optional to implement. The `handshake` commands **must** be implmented.
+
+## Command Extensions
+Clients are not limited to the list of commands provided by the Neon Timing protocol. If a client implements a custom
+command a namespace should be used in the `cmd` property to ensure future Neon Timing protocol commands do not conflict.
+
+These commands **may** define their own propteries but **must** include the required message properties.
+
+Example custom command with `x` as a namespace:
+```json
+{"cmd":"x_add_points","protocol":"NT1","time":6066,"did":"DEMO-1234567890A","points":3}
+```
+
+Clients are also allowed to add additional properties to commands. These addiontal properties should use a namespace.
+Additional properties **should** be safely ignored by clients not using them.
+
+Special care should be taken not to alter the original intent of the command, but instead add functionality in such a
+way the original purpose is not influenced
+
+Example command with a custom property of `x_animated`.
+```json
+{"cmd":"event","evt":"flag","type":"clear","protocol":"NT1","time":6066,"did":"DEMO-1234567890A","x_animated":true}
+```
 
 ## Handshake
 All clients **must** implement the commands `handshake_init` and `handshake_ack`.
@@ -191,8 +218,8 @@ The `handshake_ack` command **must** only be used in response to a `handshake_in
 
 
 ## Events
-Clients **should** not send events to clients that do not support the event types. However, the receiving client
-**must** gracefully ignore event types it cannot support.
+Clients **should** not send events to clients that do not support the event types specified during the handshake.
+However, the receiving client **must** gracefully ignore event types it cannot support.
 
 
 ## Race Events
