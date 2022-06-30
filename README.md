@@ -1,10 +1,11 @@
 # Neon Timing Protocol
 
-> This protocol is currently under development. We are looking for feedback.
-> Breaking changes to this protocol may still occur causing your clients to no longer be compatible.
+**This protocol is currently under development. We are looking for feedback.**
+
+**_Warning:_ Breaking changes to this protocol may still occur causing your clients to no longer be compatible.**
 
 The purpose of this protocol is to enable **real time** communication of race data between multiple participating clients.
-Participating clients can be a range of devices, such as: timing decoders, scoring displays, lights, and race software.
+Participating clients can be a range of devices, such as: timing decoders, scoring displays, lights, race software, and telemetry sensors.
 
 Supporting clients may enable enhanced broadcasting and connectivity features. This may include enabling compatibility
 for hardware that is not compatible with the Neon Timing Protocol.
