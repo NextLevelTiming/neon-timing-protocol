@@ -2,7 +2,7 @@
 
 **This protocol is currently under development. We are looking for feedback.**
 
-**_Warning:_ Breaking changes to this protocol may still occur causing your clients to no longer be compatible.**
+**_Warning: Breaking changes to this protocol may still occur causing your clients to no longer be compatible._**
 
 
 ---
@@ -38,10 +38,10 @@ rebroadcast events received.
   - [ ] Socket.io
 - [ ] Add support for hub communication: client -> hub -> (host) race computer
     - The current issue is that things like `handshake_ack` won't make it back to the originating device
-- [ ] Consider converting "race time over" event type back to "race last lap"
 - [ ] Finalize handshake and event commands
 - [ ] Ensure the 200 character message limit is possible with the defined protocol. Increase as needed.
 - [ ] Host vs client? Is there P2P communication or is it all client to host?
+- [ ] Pick a date to solidify version 1 of the protocol
 
 
 ---
@@ -117,6 +117,11 @@ Commands **may** include additional properties beyond this minimum set.
 {"cmd":"example_command","protocol":"NT1","time":6066,"did":"DEMO-1234567890A"}
 ```
 
+Further in this documentation you will see these referenced as `protocol properties`.
+```json
+{"cmd":"example_command",[...protocol properties]}
+```
+
 
 # Protocol Commands
 Commands are messages that **may** cause the receiving client to execute actions.
@@ -186,7 +191,7 @@ at the start of each race.
 ### Events Property
 `handshake_init` and `handshake_ack` **must** contain array of `events` supported by the client.
 
-- *: Support for receiving all event types.
+- *: Support for receiving all event groups.
 - race: Support for receiving race events.
 - flag: Support for receiving flag events.
 - gate: Support for receiving gate events.
@@ -216,54 +221,32 @@ The `handshake_ack` command **must** only be used in response to a `handshake_in
     - Used by the sender to synchronize the clocks.
 
 ```json
-{"type":"handshake_ack","init_time":1652239294011,"device":"Hub","protocol":"NT1","time":6066,"did":"DEMO-1234567890A"}
+{"cmd":"handshake_ack","init_time":1652239294011,"device":"Hub","protocol":"NT1","time":6066,"did":"DEMO-1234567890A"}
 ```
 
 
-## Events
-Clients **should** not send events to clients that do not support the event types specified during the handshake.
-However, the receiving client **must** gracefully ignore event types it cannot support.
+## Event Command
+Clients **should** not send events to clients that do not support the event groups specified during the handshake. However, the receiving client **must** gracefully ignore events it cannot support.
+
+Clients processing events **must** must insure both `evt` and `type` properties match the associated event. `type` is not guarenteed to be unique between all event groups.
+
+- `evt` [string]: The event group.
+- `type` [string]: The event type.
+
+```json
+{"cmd":"event","evt":"flag","type":"red",[...protocol properties]}
+```
 
 
-## Race Events
-```json
-{"cmd":"event","evt":"race","type":"racer_passed_gate","fast":false,"streak_laps":0,"lap":true,"transponder":"123"}
-```
-```json
-{"cmd":"event","evt":"race","type":"race_staging"}
-```
-```json
-{"cmd":"event","evt":"race","type":"countdown_started"}
-```
-```json
-{"cmd":"event","evt":"race","type":"countdown_end_delay_started"}
-```
-```json
-{"cmd":"event","evt":"race","type":"race_started"}
-```
-```json
-{"cmd":"event","evt":"race","type":"race_time_over"}
-```
-```json
-{"cmd":"event","evt":"race","type":"race_completed"}
-```
+### Event Groups
+- [Race Events](/events/race.md)
+- [Flag Events](/events/flag.md)
+- [Gate Events](/events/gate.md)
 
-## Flag Events
-```json
-{"cmd":"event","evt":"flag","type":"red"}
-```
-```json
-{"cmd":"event","evt":"flag","type":"green"}
-```
-```json
-{"cmd":"event","evt":"flag","type":"white"}
-```
-```json
-{"cmd":"event","evt":"flag","type":"clear"}
-```
 
-## Gate Events
-```json
-{"cmd":"event","evt":"race","type":"transponder_passed_gate","transponder":"1234567890ABCDEF"}
-```
+## Telemetry
+**Todo**: Telemetry data...
 
+```json
+{"cmd":"telemetry","type":["temperature","humidity"],"temperature":50.5,"humidity":20.5,"protocol":"NT1","time":2401,"did":"2509507082"}
+```
