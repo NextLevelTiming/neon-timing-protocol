@@ -4,6 +4,10 @@
 
 **_Warning:_ Breaking changes to this protocol may still occur causing your clients to no longer be compatible.**
 
+
+---
+
+
 The purpose of this protocol is to enable **real time** communication of race data between multiple participating clients.
 Participating clients can be a range of devices, such as: timing decoders, scoring displays, lights, race software, and telemetry sensors.
 
@@ -29,16 +33,15 @@ rebroadcast events received.
 > There are a few things left to finish before we recommend using the Neon Timing Protocol for use.
 
 - [ ] Get feedback from community
-- [ ] Communication protocol examples
+- [ ] Communication protocol examples and projects implementing the protocol
   - [ ] Serial
   - [ ] Socket.io
-- [ ] Support satellite -> hub -> race computer communication
+- [ ] Add support for hub communication: client -> hub -> (host) race computer
     - The current issue is that things like `handshake_ack` won't make it back to the originating device
 - [ ] Consider converting "race time over" event type back to "race last lap"
 - [ ] Finalize handshake and event commands
 - [ ] Ensure the 200 character message limit is possible with the defined protocol. Increase as needed.
 - [ ] Host vs client? Is there P2P communication or is it all client to host?
-- [ ] Finish documentation
 
 
 ---
@@ -46,12 +49,13 @@ rebroadcast events received.
 
 # Communication Protocols
 The Neon Timing Protocol is primarily a message protocol. Communication protocols are used to deliver messages between
-clients. A client **may** support more than one communication protocols.
+clients. A client **may** support more than one communication protocol.
 
 It is recommended that clients follow the communication protocol guidelines. This is not strictly necessarry.
 
 Newer, faster, easier communication protocols are being developed every day. We may adopt and make recommendations for
-implementation of these communication protocols. Ideally the messages being sent between clients will remain unchanged.
+implementation of these communication protocols. Ideally message data being sent between clients will remain unchanged
+when adding support for newer communication protocols.
 
 ## Serial
 Serial is a very common protocol used when developing hardware. It is easy to implment and most computers are capable
@@ -89,22 +93,20 @@ reduce timing errors induced by latency.
 
 # Messages
 Messages must be in [JSON](https://www.json.org/) format. This increases readablity and defines concrete structure for the messages.
+The trade-offs made for processing JSON were not made lightly. We feel there are enough low powered devices that are
+capable of handling this format effeciently.
 
 Messages between clients are done through a set of commands. Some of these commands may have additional properties.
 
 Invalid messages should not cause failure of the connection unless it is a matter of security or stability of the client.
 
-Messages should be as compact as possible. The message character limit is 200 characters. Limiting message length
+Messages **should** be as compact as possible. The message character limit is 200 characters. Limiting message length
 ensures performance is maintained and allows for low compute clients.
-
-The trade-offs made for processing JSON were not made lightly. We feel there are enough low powered devices that are
-capable of handling this format.
 
 
 ## Message Format
-Each message **must** include the following set of properties to be considered valid.
-
-Commands **may** have additional properties.
+Each message **must** include the at minimum the following set of properties to be considered valid.
+Commands **may** include additional properties beyond this minimum set.
 
 - `cmd` [string]: A command defined in the Neon Timing Protocol.
 - `protocol` [string]: For this version of the Neon Timing Protocol this value is **NT1**.
@@ -117,7 +119,7 @@ Commands **may** have additional properties.
 
 
 # Protocol Commands
-Commands are messages that cause the receiving client to execute actions.
+Commands are messages that **may** cause the receiving client to execute actions.
 
 Commands can also convey that an event happened. Events are not expected to ellicit any particular response from clients.
 
@@ -125,20 +127,20 @@ Most commands are optional to implement. The `handshake` commands **must** be im
 
 ## Command Extensions
 Clients are not limited to the list of commands provided by the Neon Timing protocol. If a client implements a custom
-command a namespace should be used in the `cmd` property to ensure future Neon Timing protocol commands do not conflict.
+command a namespace should be used in the `cmd` property value to ensure future Neon Timing protocol commands do not conflict.
 
-These commands **may** define their own propteries but **must** include the required message properties.
+These commands **may** define their own properties but **must** include the required message properties.
 
-Example custom command with `x` as a namespace:
+Example custom command with `x_` as a namespace:
 ```json
-{"cmd":"x_add_points","protocol":"NT1","time":6066,"did":"DEMO-1234567890A","points":3}
+{"cmd":"x_add_points","protocol":"NT1","time":6066,"did":"DEMO-1234567890A","x_points":3}
 ```
 
 Clients are also allowed to add additional properties to commands. These addiontal properties should use a namespace.
 Additional properties **should** be safely ignored by clients not using them.
 
 Special care should be taken not to alter the original intent of the command, but instead add functionality in such a
-way the original purpose is not influenced
+way the original purpose is not influenced.
 
 Example command with a custom property of `x_animated`.
 ```json
