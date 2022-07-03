@@ -35,7 +35,6 @@ rebroadcast events received.
 - [ ] Get feedback from community
 - [ ] Communication protocol examples and projects implementing the protocol
   - [ ] Serial
-  - [ ] Socket.io
 - [ ] Add support for hub communication: client -> hub -> (host) race computer
     - The current issue is that things like `handshake_ack` won't make it back to the originating device
 - [ ] Finalize handshake and event commands
@@ -78,7 +77,7 @@ few extra ease of use features. WebSockets are incredibly powerful. They can be 
 including the internet. Latency is very dependent on the network connectivity. The Neon Timing Protocol attempts to
 reduce timing errors induced by latency.
 
-- Example client: TODO
+- Example client: [Socket.io Example Client](https://github.com/NextLevelTiming/neon-timing-socketio-example)
 - Transport: Websocket only. No upgrades.
 - Namespace: neon-timing
 - Authentication:
