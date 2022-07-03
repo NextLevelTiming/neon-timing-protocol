@@ -242,6 +242,7 @@ Clients processing events **must** must insure both `evt` and `type` properties 
 - [Race Events](/events/race.md)
 - [Flag Events](/events/flag.md)
 - [Gate Events](/events/gate.md)
+- [Log Events](/events/logs.md)
 
 
 ## Telemetry
