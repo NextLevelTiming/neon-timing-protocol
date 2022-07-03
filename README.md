@@ -33,8 +33,6 @@ rebroadcast events received.
 > There are a few things left to finish before we recommend using the Neon Timing Protocol for use.
 
 - [ ] Get feedback from community
-- [ ] Communication protocol examples and projects implementing the protocol
-  - [ ] Serial
 - [ ] Add support for hub communication: client -> hub -> (host) race computer
     - The current issue is that things like `handshake_ack` won't make it back to the originating device
 - [ ] Finalize handshake and event commands
@@ -62,7 +60,7 @@ of sending and receiving it through the use of USB COM ports. It also has low la
 between the two clients.
 
 
-- Example client: TODO
+- Example client: [Serial Client](https://github.com/NextLevelTiming/neon-timing-serial-example)
 - Port Settings
     - Baud Rate: 115200
     - Data Bits: 8
@@ -77,7 +75,7 @@ few extra ease of use features. WebSockets are incredibly powerful. They can be 
 including the internet. Latency is very dependent on the network connectivity. The Neon Timing Protocol attempts to
 reduce timing errors induced by latency.
 
-- Example client: [Socket.io Example Client](https://github.com/NextLevelTiming/neon-timing-socketio-example)
+- Example client: [Socket.io Client](https://github.com/NextLevelTiming/neon-timing-socketio-example)
 - Transport: Websocket only. No upgrades.
 - Namespace: neon-timing
 - Authentication:
