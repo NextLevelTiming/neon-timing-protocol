@@ -240,6 +240,9 @@ Clients processing events **must** must insure both `evt` and `type` properties 
 - [Flag Events](/events/flag.md)
 - [Gate Events](/events/gate.md)
 - [Log Events](/events/logs.md)
+  - Logs probably should be an event but instead a first class command.
+  - Reasoning is that they should not be forwarded like all other events.
+  - Either that- or there should be a specification for forwarding messages.
 
 
 ## Telemetry
