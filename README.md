@@ -12,7 +12,7 @@ The purpose of this protocol is to enable **real time** communication of race da
 Participating clients can be a range of devices, such as: timing decoders, scoring displays, lights, race software, and telemetry sensors.
 
 Supporting clients may enable enhanced broadcasting and connectivity features. This may include enabling compatibility
-for hardware that is not compatible with the Neon Timing Protocol.
+for hardware that is not directly compatible with the Neon Timing Protocol.
 
 Clients **may** support one or more connected clients. If more than one connected client is supported, the host **must**
 rebroadcast events received.
@@ -48,9 +48,7 @@ rebroadcast events received.
 The Neon Timing Protocol is primarily a message protocol. Communication protocols are used to deliver messages between
 clients. A client **may** support more than one communication protocol.
 
-It is recommended that clients follow the communication protocol guidelines. This is not strictly necessarry.
-
-Newer, faster, easier communication protocols are being developed every day. We may adopt and make recommendations for
+It is recommended that clients follow the communication protocol guidelines. This is not strictly necessarry. Newer, faster, easier communication protocols are being developed every day. We may adopt and make recommendations for
 implementation of these communication protocols. Ideally message data being sent between clients will remain unchanged
 when adding support for newer communication protocols.
 
@@ -114,40 +112,16 @@ Commands **may** include additional properties beyond this minimum set.
 {"cmd":"example_command","protocol":"NT1","time":6066,"did":"DEMO-1234567890A"}
 ```
 
-Further in this documentation you will see these referenced as `protocol properties`.
+Further in this documentation you will see these referenced as `[...protocol properties]`.
 ```json
 {"cmd":"example_command",[...protocol properties]}
 ```
 
 
 # Protocol Commands
-Commands are messages that **may** cause the receiving client to execute actions.
+Commands are messages that **may** cause the receiving client to execute actions. Most commands are optional to implement.
 
 Commands can also convey that an event happened. Events are not expected to ellicit any particular response from clients.
-
-Most commands are optional to implement. The `handshake` commands **must** be implmented.
-
-## Command Extensions
-Clients are not limited to the list of commands provided by the Neon Timing protocol. If a client implements a custom
-command a namespace should be used in the `cmd` property value to ensure future Neon Timing protocol commands do not conflict.
-
-These commands **may** define their own properties but **must** include the required message properties.
-
-Example custom command with `x_` as a namespace:
-```json
-{"cmd":"x_add_points","protocol":"NT1","time":6066,"did":"DEMO-1234567890A","x_points":3}
-```
-
-Clients are also allowed to add additional properties to commands. These addiontal properties should use a namespace.
-Additional properties **should** be safely ignored by clients not using them.
-
-Special care should be taken not to alter the original intent of the command, but instead add functionality in such a
-way the original purpose is not influenced.
-
-Example command with a custom property of `x_animated`.
-```json
-{"cmd":"event","evt":"flag","type":"clear","protocol":"NT1","time":6066,"did":"DEMO-1234567890A","x_animated":true}
-```
 
 ## Handshake
 All clients **must** implement the commands `handshake_init` and `handshake_ack`.
@@ -155,6 +129,7 @@ All clients **must** implement the commands `handshake_init` and `handshake_ack`
 The handshake commands serve two purposes:
 - During initial connection to determine client compatibility.
 - At any time during a connection to synchronize clocks between clients.
+- To check for connectivity between clients.
 
 
 ### Initial Connection
@@ -188,27 +163,26 @@ at the start of each race.
 ### Events Property
 `handshake_init` and `handshake_ack` **must** contain array of `events` supported by the client.
 
-- *: Support for receiving all event groups.
-- race: Support for receiving race events.
-- flag: Support for receiving flag events.
-- gate: Support for receiving gate events.
+- Allowed values: `*`, `race`, `flag`, `gate`, `telemetry`
 
-Events are described more in the `event` command documentation.
+`*` is a special value. It indicates the client will support receiving **all** event data.
+
+Events are described more in the [event command](#event-command) documentation.
 
 
 ### Handshake Initialization
-Directly after connecting to another Neon Timing Protocol client, both clients must send a `handshake_init`.
+Directly after connecting to a client, both clients must send a `handshake_init`.
 
-- `device` [string]: Device name or description
-- `events` [array of strings]: A list of events supported by the client.
+- `device` [required|string]: Device name or description
+- `events` [required|array of strings]: A list of events supported by the client.
 
 ```json
-{"cmd":"handshake_init","device":"Satellite","protocol":"NT1","time":6066,"did":"DEMO-1234567890A"}
+{"cmd":"handshake_init","events":["*"],"device":"Satellite",[...protocol properties]}
 ```
 
 
 ### Handshake Acknowledgement
-Directly after receiving a `handshake_init` command a client **must** respond with `handshake_ack`.
+Directly after receiving a `handshake_init` command, the client **must** respond with `handshake_ack`.
 
 The `handshake_ack` command **must** only be used in response to a `handshake_init` command.
 
@@ -218,14 +192,14 @@ The `handshake_ack` command **must** only be used in response to a `handshake_in
     - Used by the sender to synchronize the clocks.
 
 ```json
-{"cmd":"handshake_ack","init_time":1652239294011,"device":"Hub","protocol":"NT1","time":6066,"did":"DEMO-1234567890A"}
+{"cmd":"handshake_ack","init_time":1652239294011,"device":"Hub",[...protocol properties]}
 ```
 
 
 ## Event Command
 Clients **should** not send events to clients that do not support the event groups specified during the handshake. However, the receiving client **must** gracefully ignore events it cannot support.
 
-Clients processing events **must** must insure both `evt` and `type` properties match the associated event. `type` is not guarenteed to be unique between all event groups.
+Clients processing events **must** must insure both `evt` and `type` properties match the associated event. `type` is not guaranteed to be unique between all event groups.
 
 - `evt` [string]: The event group.
 - `type` [string]: The event type.
@@ -239,15 +213,7 @@ Clients processing events **must** must insure both `evt` and `type` properties 
 - [Race Events](/events/race.md)
 - [Flag Events](/events/flag.md)
 - [Gate Events](/events/gate.md)
+- [Telemetry Events](/events/telemetry.md)
 - [Log Events](/events/logs.md)
-  - Logs probably should be an event but instead a first class command.
-  - Reasoning is that they should not be forwarded like all other events.
-  - Either that- or there should be a specification for forwarding messages.
-
-
-## Telemetry
-**Todo**: Telemetry data...
-
-```json
-{"cmd":"telemetry","type":["temperature","humidity"],"temperature":50.5,"humidity":20.5,"protocol":"NT1","time":2401,"did":"2509507082"}
-```
+  - Logs should be a first class command because events are rebroadcast.
+  - Rebroadcasting logs would be noisy.
