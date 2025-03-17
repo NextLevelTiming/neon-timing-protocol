@@ -59,7 +59,7 @@ Indicates the racer has passed a gate, possibly completed a lap,
 ### Properties
 - `fast` [boolean]: Racer's fastest lap
 - `streak` [boolean]: Indicates if the racer is on a streak
-- `lap` [boolean]: Indicates if the racer has completed a lap
+- `valid` [boolean]: Valid gate pass
 - `transponder` [string]: The transponder ID of the racer
 - `gate_id` [string]: The id of the gate the racer passed
 - `gate_type` [string start|checkpoint|finish]: The type of gate the racer passed
