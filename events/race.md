@@ -59,13 +59,13 @@ Indicates the racer has passed a gate, possibly completed a lap,
 ### Properties
 - `fast` [boolean]: Racer's fastest lap
 - `streak` [boolean]: Indicates if the racer is on a streak
-- `valid` [boolean]: Valid gate pass
+- `valid` [boolean]: Gate passes can be invalid in some cases such missed gates or minimum lap times
 - `transponder` [string]: The transponder ID of the racer
 - `gate` [string]: The id of the gate the racer passed
 - `gate_type` [string start|checkpoint|finish]: The type of gate the racer passed
 
 ```json
-{"cmd":"event","evt":"race","type":"racer_passed_gate","fast":false,"streak":true,"lap":true,"transponder":"123","gate_id":"1","gate_type":"start",[...protocol properties]}
+{"cmd":"event","evt":"race","type":"racer_passed_gate","fast":false,"streak":true,"valid":true,"transponder":"123","gate_id":"1","gate_type":"start",[...protocol properties]}
 ```
 
 
