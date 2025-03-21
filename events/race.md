@@ -77,14 +77,14 @@ The position of the racers must be calculated based on the race type.
 ### Properties
 - `name` [string]: Racer's name
 - `laps` [integer]: Number of laps completed
-- `fast` [integer]: Fastest lap time (in milliseconds)
+- `fast_lap` [integer]: Racer's fastest lap time of the race (in milliseconds)
 - `elapsed` [integer]: Total elapsed time (in milliseconds)
 - `status` [string active|dnf|dq]: Racer’s status (active, did not finish, disqualified)
 - `id` [string]: Unique identifier for the racer’s standing entry
 - `transponder` [string]: Transponder ID, which may change
 
 ```json
-{"cmd":"event","evt":"race","type":"standings_update","name":"Fred Huffington","laps":1,"fast":5555,"elapsed":20000,"status":"active","id":"123","transponder":"123",[...protocol properties]}
+{"cmd":"event","evt":"race","type":"standings_update","name":"Fred Huffington","laps":1,"fast_lap":5555,"elapsed":20000,"status":"active","id":"123","transponder":"123",[...protocol properties]}
 ```
 
 
