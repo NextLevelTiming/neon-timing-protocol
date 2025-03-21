@@ -16,8 +16,13 @@ Race events describe events that occur during a live race.
 
 Indicates a closing of the track. Racers should prepare for the start of the race.
 
+### Properties
+- `start_type` [string]: The type of start (heads-up, staggered, etc.)
+  - `heads-up`: All racers start at the same time
+  - `staggered`: Racers start at different times
+
 ```json
-{"cmd":"event","evt":"race","type":"race_staging",[...protocol properties]}
+{"cmd":"event","evt":"race","type":"race_staging","start_type":"heads-up",[...protocol properties]}
 ```
 
 
