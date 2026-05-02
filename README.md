@@ -36,7 +36,6 @@ rebroadcast events received.
 - [ ] Add support for hub communication: client -> hub -> (host) race computer
     - The current issue is that things like `handshake_ack` won't make it back to the originating device
 - [ ] Finalize handshake and event commands
-- [ ] Ensure the 200 character message limit is possible with the defined protocol. Increase as needed.
 - [ ] Host vs client? Is there P2P communication or is it all client to host?
 - [ ] Pick a date to solidify version 1 of the protocol
 
@@ -95,7 +94,7 @@ Messages between clients are done through a set of commands. Some of these comma
 
 Invalid messages should not cause failure of the connection unless it is a matter of security or stability of the client.
 
-Messages **should** be as compact as possible. The message character limit is 200 characters. Limiting message length
+Messages **must** not exceed 400 characters. The message character limit is 400 characters. Limiting message length
 ensures performance is maintained and allows for low compute clients.
 
 

@@ -16,8 +16,13 @@ Race events describe events that occur during a live race.
 
 Indicates a closing of the track. Racers should prepare for the start of the race.
 
+### Properties
+- `start_type` [string]: The type of start (heads-up, staggered, etc.)
+  - `heads-up`: All racers start at the same time
+  - `staggered`: Racers start at different times
+
 ```json
-{"cmd":"event","evt":"race","type":"race_staging",[...protocol properties]}
+{"cmd":"event","evt":"race","type":"race_staging","start_type":"heads-up",[...protocol properties]}
 ```
 
 
@@ -56,11 +61,35 @@ Indicates that racers should start racing.
 
 Indicates the racer has passed a gate, possibly completed a lap, 
 
-- TODO: Rename this or break it into multiple events? `racer_completed_lap` and `racer_passed_gate`
-- TODO: This doesn't indicate the gate, should it?
+### Properties
+- `fast` [boolean]: Indicates this was a fast gate pass (fast lap)
+- `streak` [boolean]: If the racer is currently on a consistency streak
+- `valid` [boolean]: Gate passes can be invalid in some cases such missed gates or minimum lap times
+- `transponder` [string]: The transponder ID of the racer
+- `gate` [string]: The id of the gate the racer passed
+- `gate_type` [string start|checkpoint|finish]: The type of gate the racer passed
 
 ```json
-{"cmd":"event","evt":"race","type":"racer_passed_gate","fast":false,"streak_laps":0,"lap":true,"transponder":"123",[...protocol properties]}
+{"cmd":"event","evt":"race","type":"racer_passed_gate","fast":false,"streak":true,"valid":true,"transponder":"123","gate":"1","gate_type":"start",[...protocol properties]}
+```
+
+
+## Race Standings
+`Occurs When`: An update to the standings has occurred.
+
+The position of the racers must be calculated based on the race type.
+
+### Properties
+- `name` [string]: Racer's name
+- `laps` [integer]: Number of laps completed
+- `fast_lap` [integer]: Racer's fastest lap time of the race (in milliseconds)
+- `elapsed` [integer]: Total elapsed time (in milliseconds)
+- `status` [string active|complete|dnf|dq]: Racer’s status (active, complete, did not finish, disqualified)
+- `id` [string]: Unique identifier for the racer’s standing entry
+- `transponder` [string]: Transponder ID, which may change
+
+```json
+{"cmd":"event","evt":"race","type":"standings","name":"Fred Huffington","laps":1,"fast_lap":5555,"elapsed":20000,"status":"active","id":"123","transponder":"123",[...protocol properties]}
 ```
 
 
